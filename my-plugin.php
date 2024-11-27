@@ -25,6 +25,15 @@ class MyPlugin
         add_action('admin_menu', array($this, 'add_menu_page'));
         $this->settings = new MyPlugin_Settings();
         $this->frontend = new MyPlugin_Frontend();
+        register_uninstall_hook(
+            __FILE__,
+            array('MyPlugin', 'uninstall')
+        );
+
+        register_deactivation_hook(
+            __FILE__,
+            array($this, 'deactivate')
+        );
     }
 
     public function init()
@@ -74,6 +83,37 @@ class MyPlugin
             'nonce' => wp_create_nonce('wp_rest'),
             'apiUrl' => rest_url('my-plugin/v1/')
         ));
+    }
+
+
+    public static function uninstall()
+    {
+        // Delete plugin options
+        delete_option('my_plugin_settings');
+
+        // Clean up any additional plugin data
+        global $wpdb;
+
+        // Clear cache
+        wp_cache_flush();
+
+        // Delete any plugin-specific user meta
+        $wpdb->query("DELETE FROM {$wpdb->usermeta} WHERE meta_key LIKE 'my_plugin_%'");
+    }
+
+    /**
+     * Plugin deactivation tasks
+     */
+    public function deactivate()
+    {
+        // Clear any scheduled events
+        wp_clear_scheduled_hook('my_plugin_daily_event');
+
+        // Clear any transients
+        delete_transient('my_plugin_cache');
+
+        // Log deactivation (optional)
+        error_log('My Plugin deactivated');
     }
 }
 

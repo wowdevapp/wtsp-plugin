@@ -23,7 +23,8 @@ class MyPlugin_Settings
                     'button_position' => 'right',
                     'button_size' => 'medium',
                     'show_on_mobile' => true,
-                    'show_on_desktop' => true
+                    'show_on_desktop' => true,
+                    'remove_data_on_uninstall' => false
                 )
             )
         );
@@ -69,5 +70,23 @@ class MyPlugin_Settings
             'Failed to update settings',
             array('status' => 500)
         );
+    }
+
+    public function handle_data_removal()
+    {
+        if (isset($_POST['my_plugin_remove_data'])) {
+            check_admin_referer('my_plugin_remove_data_nonce');
+
+            // Remove all plugin data
+            delete_option($this->option_name);
+
+            // Redirect back to settings page
+            wp_redirect(add_query_arg(
+                'data-removed',
+                'true',
+                admin_url('admin.php?page=my-plugin')
+            ));
+            exit;
+        }
     }
 }

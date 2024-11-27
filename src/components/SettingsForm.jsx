@@ -121,6 +121,37 @@ export default function SettingsForm() {
                     </Button>
                 </CardBody>
             </Card>
+            <Card>
+                <CardHeader>
+                    <h2>{__('Data Management', 'my-plugin')}</h2>
+                </CardHeader>
+                <CardBody>
+                    <ToggleControl
+                        label={__('Remove all data when uninstalling plugin', 'my-plugin')}
+                        help={__('When enabled, all plugin settings will be removed upon uninstall', 'my-plugin')}
+                        checked={settings.remove_data_on_uninstall}
+                        onChange={(value) => updateSetting('remove_data_on_uninstall', value)}
+                    />
+
+                    <div className="data-removal-section">
+                        <h3>{__('Remove Data Now', 'my-plugin')}</h3>
+                        <p className="description">
+                            {__('This will immediately remove all plugin data. This action cannot be undone.', 'my-plugin')}
+                        </p>
+                        <Button 
+                            isDestructive
+                            onClick={() => {
+                                if (window.confirm(__('Are you sure you want to remove all plugin data? This cannot be undone.', 'my-plugin'))) {
+                                    // Call your data removal endpoint
+                                    updateSettings({});
+                                }
+                            }}
+                        >
+                            {__('Remove All Data', 'my-plugin')}
+                        </Button>
+                    </div>
+                </CardBody>
+            </Card>
         </form>
     );
 }
